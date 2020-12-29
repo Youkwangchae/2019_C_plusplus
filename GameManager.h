@@ -3,7 +3,8 @@
 #include"Block.h"
 #include"Stage.h"
 #include"totalHead.h"
-
+#include"User.h"
+#include <fstream>
 class GameManager
 {
 private:
@@ -11,7 +12,7 @@ private:
 	int game_over;
 	Block cur_block;
 	Block next_block;
-	Stage** stage;	//stage[10]
+	Stage** stage;	//stage[3]
 public:
 	GameManager();
 	~GameManager();
@@ -25,6 +26,6 @@ public:
 	void showGameOver();
 	void showGameClear();
 	void show_logo();
-
+	void printAscii(string fname, int x, int y);
 };
 
