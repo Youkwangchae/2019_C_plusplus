@@ -3,6 +3,8 @@
 #include"Block.h"
 #include"Stage.h"
 #include"GameManager.h"
+#include"Server.h"
+#include"UserManager.h"
 
 using namespace std;
 int gotoxy(int x, int y)
@@ -27,5 +29,7 @@ int main()
 	GameManager game;
 	game.show_logo();
 	game.gameStart();
+	serverClose();
+	
 	return 0;
 }
