@@ -1,4 +1,7 @@
 #include "GameManager.h"
+#include"Server.h"
+#include"UserManager.h"
+#include"User.h"
 
 GameManager::GameManager()
 {
@@ -19,13 +22,13 @@ void GameManager::init()
 	stage[0] = new Stage(1, 40, 20, 2);
 	stage[1] = new Stage(2, 38, 19, 2);
 	stage[2] = new Stage(3, 35, 18, 10);
-	stage[3] = new Stage(4, 30, 17, 10);
+	/*stage[3] = new Stage(4, 30, 17, 10);
 	stage[4] = new Stage(5, 25, 16, 10);
 	stage[5] = new Stage(6, 20, 15, 10);
 	stage[6] = new Stage(7, 15, 14, 20);
 	stage[7] = new Stage(8, 10, 13, 20);
 	stage[8] = new Stage(9, 6, 12, 20);
-	stage[9] = new Stage(10, 4, 11, 20);
+	stage[9] = new Stage(10, 4, 11, 20);*/
 
 }
 
@@ -36,8 +39,10 @@ void GameManager::gameStart()
 	while (1)
 	{
 		init();
-	
+		UserManager um;
+		um.membership(); 
 		cur_level = input_data();
+		serverInit();
 		system("cls");
 
 		stage[cur_level]->showTotalBlock();
@@ -58,7 +63,7 @@ void GameManager::gameStart()
 					keytemp = _getch();
 					switch (keytemp)
 					{
-					case KEY_UP:		//È¸ÀüÇÏ±â
+					case KEY_UP:		//íšŒì „í•˜ê¸°
 						cur_block.removeBlock();
 						cur_block.rotate();
 
@@ -90,7 +95,7 @@ void GameManager::gameStart()
 						cur_block.printBlock();
 						break;
 
-					case KEY_LEFT:		//¿ŞÂÊÀ¸·Î ÀÌµ¿
+					case KEY_LEFT:		//ì™¼ìª½ìœ¼ë¡œ ì´ë™
 					{
 						cur_block.removeBlock();
 						cur_block.moveLeft();
@@ -99,7 +104,7 @@ void GameManager::gameStart()
 						cur_block.printBlock();
 					}
 					break;
-					case KEY_RIGHT:		//¿À¸¥ÂÊÀ¸·Î ÀÌµ¿
+					case KEY_RIGHT:		//ì˜¤ë¥¸ìª½ìœ¼ë¡œ ì´ë™
 					{
 						cur_block.removeBlock();
 
@@ -109,7 +114,7 @@ void GameManager::gameStart()
 						cur_block.printBlock();
 					}
 					break;
-					case KEY_DOWN:		//¾Æ·¡·Î ÀÌµ¿
+					case KEY_DOWN:		//ì•„ë˜ë¡œ ì´ë™
 						cur_block.removeBlock();
 						cur_block.moveDown();
 						game_over = isGameOver();
@@ -122,7 +127,7 @@ void GameManager::gameStart()
 						break;
 					}
 				}
-				if (keytemp == 32)	//½ºÆäÀÌ½º¹Ù¸¦ ´­·¶À» ¶§
+				if (keytemp == 32)	//ìŠ¤í˜ì´ìŠ¤ë°”ë¥¼ ëˆŒë €ì„ ë•Œ
 				{
 					while (game_over == 0)
 					{
@@ -150,6 +155,7 @@ void GameManager::gameStart()
 					stage[cur_level]->mergeBlock(cur_block);
 			}
 			string str;
+			recvMsg(str);
 			if (str == "1")
 			{
 				stage[cur_level]->setLines(stage[cur_level]->getLines() + 1);
@@ -160,13 +166,15 @@ void GameManager::gameStart()
 				showGameOver();
 				stage[cur_level]->setScore(0);
 				SetColor(GRAY);
+				serverClose();
 				break;
 			}
-			if (stage[cur_level]->getClearLine() <= stage[cur_level]->getLines())   //Å¬¸®¾î ½ºÅ×ÀÌÁö
+			if (stage[cur_level]->getClearLine() <= stage[cur_level]->getLines())   //í´ë¦¬ì–´ ìŠ¤í…Œì´ì§€
 			{
-				if (cur_level == 9)
+				if (cur_level == 3)
 				{
 					showGameClear();
+					serverClose();
 					break;
 				}
 
@@ -181,8 +189,8 @@ void GameManager::gameStart()
 
 				stage[cur_level]->showTotalBlock();
 				stage[cur_level]->showGameStat();
-				// ¼öÁ¤
-				// È­¸é¿¡ Á¦´ë·Î Ãâ·ÂµÇÁö ¾ÊÀ½
+				// ìˆ˜ì •
+				// í™”ë©´ì— ì œëŒ€ë¡œ ì¶œë ¥ë˜ì§€ ì•ŠìŒ
 
 				showNextBlock();
 
@@ -210,14 +218,14 @@ int GameManager::strikeCheck()
 		{
 			if (((x + j) == 0))
 				block_dat = 1;
-			//¼öÁ¤ÇÔ
+			//ìˆ˜ì •í•¨
 			else if ((x + j) == 13)
 				block_dat = 2;
 			else
 			{
-				//¼öÁ¤ 
-				//Á¶°ÇÀ» Ãß°¡ÇÔ
-				//¹è¿­ÀÇ ÀÎµ¦½º°¡ À½¼ö¸¦ ÂüÁ¶ÇÏ´Â °æ¿ì°¡ ¹ß»ıÇÔ
+				//ìˆ˜ì • 
+				//ì¡°ê±´ì„ ì¶”ê°€í•¨
+				//ë°°ì—´ì˜ ì¸ë±ìŠ¤ê°€ ìŒìˆ˜ë¥¼ ì°¸ì¡°í•˜ëŠ” ê²½ìš°ê°€ ë°œìƒí•¨
 				if ((y + i) >= 0)
 					block_dat = stage[cur_level]->total_block[y + i][x + j];
 				else
@@ -225,7 +233,7 @@ int GameManager::strikeCheck()
 			}
 
 
-			if ((block_dat == 1) && (cur_block.block_frame[shape][angle][i][j] == 1))         //ÁÂÃøº®ÀÇ ÁÂÇ¥¸¦ »©±âÀ§ÇÔ
+			if ((block_dat == 1) && (cur_block.block_frame[shape][angle][i][j] == 1))         //ì¢Œì¸¡ë²½ì˜ ì¢Œí‘œë¥¼ ë¹¼ê¸°ìœ„í•¨
 			{
 				return 1;
 			}
@@ -240,34 +248,34 @@ int GameManager::input_data()
 {
 	int i = 0;
 	SetColor(GRAY);
-	//=========================¿À·ù ¼öÁ¤=========================
+	//=========================ì˜¤ë¥˜ ìˆ˜ì •=========================
 	gotoxy(10, 7);
-	cout << ("¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬<GAME KEY>¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯");
+	cout << ("â”â”â”â”â”â”â”â”â”â”<GAME KEY>â”â”â”â”â”â”â”â”â”â”“");
 	Sleep(10);
 	gotoxy(10, 8);
-	cout << ("¦­ UP   : Rotate Block        ¦­");
+	cout << ("â”ƒ UP   : Rotate Block        â”ƒ");
 	Sleep(10);
 	gotoxy(10, 9);
-	cout << ("¦­ DOWN : Move One-Step Down  ¦­");
+	cout << ("â”ƒ DOWN : Move One-Step Down  â”ƒ");
 	Sleep(10);
 	gotoxy(10, 10);
-	cout << ("¦­ SPACE: Move Bottom Down    ¦­");
+	cout << ("â”ƒ SPACE: Move Bottom Down    â”ƒ");
 	Sleep(10);
 	gotoxy(10, 11);
-	cout << ("¦­ LEFT : Move Left           ¦­");
+	cout << ("â”ƒ LEFT : Move Left           â”ƒ");
 	Sleep(10);
 	gotoxy(10, 12);
-	cout << ("¦­ RIGHT: Move Right          ¦­");
+	cout << ("â”ƒ RIGHT: Move Right          â”ƒ");
 	Sleep(10);
 	gotoxy(10, 13);
-	cout << ("¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦°");
+	cout << ("â”—â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”›");
 
-	//=========================¿À·ù ¼öÁ¤=========================
+	//=========================ì˜¤ë¥˜ ìˆ˜ì •=========================
 
-	while (i < 1 || i>10)
+	while (i < 1 || i>3)
 	{
 		gotoxy(10, 3);
-		cout << ("Select Start level[1-10]:");
+		cout << ("Select Start level[1-3]:");
 		while (true) {
 			cin >> i;
 			if (cin.fail())
@@ -275,7 +283,7 @@ int GameManager::input_data()
 				gotoxy(10, 3);
 				cout << "                                                             ";
 				gotoxy(10, 3);
-				cout << ("Select Start level[1-10]:");
+				cout << ("Select Start level[1-3]:");
 				cin.clear(); // clears error flags
 				cin.ignore(1000, '\n');
 			}
@@ -305,7 +313,7 @@ void GameManager::showNextBlock()
 		{
 			if (i == 1 || i == 6 || j == 0 || j == 5)
 			{
-				cout << ("¡á");
+				cout << ("â– ");
 			}
 			else {
 				cout << ("  ");
@@ -325,7 +333,7 @@ int GameManager::isGameOver()
 	{
 		cur_block.moveUp();
 
-		if (cur_block.getY() <= 0)	//°ÔÀÓ ¿À¹ö
+		if (cur_block.getY() <= 0)	//ê²Œì„ ì˜¤ë²„
 		{
 			return 1;
 		}
@@ -347,16 +355,16 @@ void GameManager::showGameOver()
 {
 	SetColor(RED);
 	gotoxy(15, 8);
-	//=========================¿À·ù ¼öÁ¤=========================
-	cout << "¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯" << endl;
+	//=========================ì˜¤ë¥˜ ìˆ˜ì •=========================
+	cout << "â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”“" << endl;
 	gotoxy(15, 9);
-	cout << "¦­**************************¦­";
+	cout << "â”ƒ**************************â”ƒ";
 	gotoxy(15, 10);
-	cout << "¦­*        GAME OVER       *¦­";
+	cout << "â”ƒ*        GAME OVER       *â”ƒ";
 	gotoxy(15, 11);
-	cout << "¦­**************************¦­";
+	cout << "â”ƒ**************************â”ƒ";
 	gotoxy(15, 12);
-	cout << "¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦°";
+	cout << "â”—â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”›";
 	fflush(stdin);
 	Sleep(1000);
 
@@ -368,16 +376,16 @@ void GameManager::showGameClear()
 {
 	SetColor(RED);
 	gotoxy(15, 8);
-	//=========================¿À·ù ¼öÁ¤=========================
-	cout << "¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯";
+	//=========================ì˜¤ë¥˜ ìˆ˜ì •=========================
+	cout << "â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”“";
 	gotoxy(15, 9);
-	cout << "¦­**************************¦­";
+	cout << "â”ƒ**************************â”ƒ";
 	gotoxy(15, 10);
-	cout << "¦­*        GAME CLEAR      *¦­";
+	cout << "â”ƒ*        GAME CLEAR      *â”ƒ";
 	gotoxy(15, 11);
-	cout << "¦­**************************¦­";
+	cout << "â”ƒ**************************â”ƒ";
 	gotoxy(15, 12);
-	cout << "¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦°";
+	cout << "â”—â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”›";
 	fflush(stdin);
 	Sleep(1000);
 
@@ -390,26 +398,26 @@ void GameManager::show_logo()
 {
 	int i, j;
 	gotoxy(13, 3);
-	//=========================¿À·ù ¼öÁ¤=========================
-	cout << "¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯";
+	//=========================ì˜¤ë¥˜ ìˆ˜ì •=========================
+	cout << "â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”“";
 	Sleep(100);
 	gotoxy(13, 4);
-	cout << "¦­¡ß¡ß¡ß  ¡ß¡ß¡ß  ¡ß¡ß¡ß   ¡ß¡ß     ¡ß   ¡ß  ¡ß ¦­";
+	cout << "â”ƒâ—†â—†â—†  â—†â—†â—†  â—†â—†â—†   â—†â—†     â—†   â—†  â—† â”ƒ";
 	Sleep(100);
 	gotoxy(13, 5);
-	cout << "¦­  ¡ß    ¡ß        ¡ß     ¡ß ¡ß    ¡ß    ¡ß¡ß  ¦­";
+	cout << "â”ƒ  â—†    â—†        â—†     â—† â—†    â—†    â—†â—†  â”ƒ";
 	Sleep(100);
 	gotoxy(13, 6);
-	cout << "¦­  ¡ß    ¡ß¡ß¡ß    ¡ß     ¡ß¡ß     ¡ß     ¡ß   ¦­";
+	cout << "â”ƒ  â—†    â—†â—†â—†    â—†     â—†â—†     â—†     â—†   â”ƒ";
 	Sleep(100);
 	gotoxy(13, 7);
-	cout << "¦­  ¡ß    ¡ß        ¡ß     ¡ß ¡ß    ¡ß    ¡ß¡ß  ¦­";
+	cout << "â”ƒ  â—†    â—†        â—†     â—† â—†    â—†    â—†â—†  â”ƒ";
 	Sleep(100);
 	gotoxy(13, 8);
-	cout << "¦­  ¡ß    ¡ß¡ß¡ß    ¡ß     ¡ß  ¡ß   ¡ß   ¡ß  ¡ß ¦­";
+	cout << "â”ƒ  â—†    â—†â—†â—†    â—†     â—†  â—†   â—†   â—†  â—† â”ƒ";
 	Sleep(100);
 	gotoxy(13, 9);
-	cout << "¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦°";
+	cout << "â”—â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”›";
 
 
 	gotoxy(28, 20);
@@ -428,7 +436,7 @@ void GameManager::show_logo()
 
 
 			}
-			//=========================¿À·ù ¼öÁ¤=========================
+			//=========================ì˜¤ë¥˜ ìˆ˜ì •=========================
 			for (j = 0; j < 5; j++)
 			{
 				gotoxy(6, 14 + j);
@@ -450,4 +458,26 @@ void GameManager::show_logo()
 }
 
 
+void GameManager::printAscii(string fname, int x, int y)
+{
+	ifstream File(fname);
 
+	if (File)                      //Check if everything is good
+	{
+		while (File.good())
+		{
+			gotoxy(x, y);
+			std::string line;                  //Temp line
+			std::getline(File, line);        //Get temp line
+			//TempLine += "\n";                      //Add newline character
+			cout << line;
+			y++;                //Add newline
+		}
+	}
+	else                           //Return error
+	{
+		cout << "íŒŒì¼ ì½ê¸° ì˜¤ë¥˜" << endl;
+	}
+
+	File.close();
+}
