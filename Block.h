@@ -8,7 +8,7 @@ private:
 	int angle;
 	int x;
 	int y;
-
+	
 public:
 	static char block_frame[7][4][4][4];
 	Block();
@@ -25,6 +25,11 @@ public:
 	void rotate();
 	void moveUp();
 	void moveDown();
+
+
+
+
+
 	int getShape();
 	int getAngle();
 	int getX();

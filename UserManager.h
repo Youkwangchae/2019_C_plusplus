@@ -6,6 +6,7 @@
 #include"User.h"
 #include"totalHead.h"
 using namespace std;
+
 #pragma comment(lib, "libmariadb.lib")
 class UserManager
 {
@@ -24,7 +25,7 @@ public:
 	void join(string _id, string _pwd, string _email, int _score);
 	void find();
 	void rank();
-	bool greater(User u1, User u2);
+	void setDBScore(int _Tscore);
 	bool isUserExist(string _id, string _pwd);
 	bool isIDExist(string _id, string _email);
 	void setCursorView(bool visible);

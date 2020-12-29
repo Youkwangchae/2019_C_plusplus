@@ -58,7 +58,7 @@ void Block::makeNewBlock(int _rate)
 		this->shape = 0;
 	}
 	else
-		this->shape = (rand() % 6) + 1;
+		this->shape = (rand() % 6)+1;
 
 	this->angle = 0;
 	this->x = 15;

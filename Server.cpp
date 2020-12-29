@@ -1,59 +1,47 @@
-#include"Server.h"
-#include<stdio.h>
-#include<WinSock2.h>
+#include "Server.h"
 
-#include<iostream>
-using namespace std;
-#pragma comment(lib, "ws2_32")
-
-#define PORT 4578
-#define PACKET_SIZE 1024
-
-WSADATA wsaData;
-SOCKET hListen;
-SOCKADDR_IN tListenAddr = {};
-SOCKADDR_IN tClntAddr = {};
-SOCKET hClient;
-char cBuffer[PACKET_SIZE] = {};
-
-
-void serverInit()
+Server::Server()
 {
 
+}
+
+void Server::serverInit()
+{
 	WSAStartup(MAKEWORD(2, 2), &wsaData);	//생성자 개념
-
-
 	hListen = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);	//IPV4 타입을 사용,  연결지향형 소켓, TCP
-
-
 	tListenAddr.sin_family = AF_INET;
 	tListenAddr.sin_port = htons(PORT);	//htons : host to network short
 	tListenAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-
 	bind(hListen, (SOCKADDR*)& tListenAddr, sizeof(tListenAddr));
-
 	cout << "클라이언트 연결 대기중" << endl;
-	listen(hListen, SOMAXCONN);
+	listen(hListen, SOMAXCONN);	//클라이언트 접속 요청 받는 큐 생성
 	int iClntSize = sizeof(tClntAddr);
-	hClient = accept(hListen, (SOCKADDR*)& tClntAddr, &iClntSize);
+	hClient = accept(hListen, (SOCKADDR*)& tClntAddr, &iClntSize);	//큐에서 요청 꺼내면서 수락
 }
-void recvMsg(string& str)
+
+void Server::recvMsg(string& str, string msg)
 {
+	char cBuffer[PACKET_SIZE] = {};
+	char cMsg[PACKET_SIZE];
 	int error = recv(hClient, cBuffer, PACKET_SIZE, 0);
+	//클라이언트로부터 값을 받아 cBuffer에 저장
+	//cout << error << endl;
 	//printf("Recv Msg : %s\n", cBuffer);
 	if (error == -1)
 	{
+		system("cls");
+		gotoxy(0, 0);
+		SetColor(WHITE);
 		cout << "client 연결 종료" << endl;
-		return;
+		exit(0);
 	}
 	str = string(cBuffer);
-
-
-
-	char cMsg[] = "Sever Send";
+	strcpy(cMsg, msg.c_str());
 	send(hClient, cMsg, strlen(cMsg), 0);
+	//클라이언트에게 나의 점수를 문자열의 형태로 확인응답
 }
-void serverClose()
+
+void Server::serverClose()
 {
 	closesocket(hClient);
 	closesocket(hListen);

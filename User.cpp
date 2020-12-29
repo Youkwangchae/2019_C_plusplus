@@ -17,7 +17,7 @@ User::User(string _id, string _pwd, string _email, int _score)
 	pwd = _pwd;
 	email = _email;
 	score = _score;
-
+	
 
 }
 
@@ -39,6 +39,13 @@ string User::getEmail()
 int User::getScore()
 {
 	return score;
+}
+
+void User::getUserInfo(string& _id, string& _pwd, string& _email)
+{
+	_id = id;
+	_pwd = pwd;
+	_email = email;
 }
 
 void User::getUserInfo()
@@ -66,6 +73,8 @@ void User::setScore(int _score)
 	score = _score;
 }
 
+
+
 void User::setAll(string _id, string _pwd, string _email, int _score)
 {
 	id = _id;
@@ -76,7 +85,7 @@ void User::setAll(string _id, string _pwd, string _email, int _score)
 
 bool User::operator<(User& copy)
 {
-	return this->getScore() > copy.getScore();
+	return this->getScore()>copy.getScore();
 }
 
 

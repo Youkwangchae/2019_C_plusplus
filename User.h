@@ -16,6 +16,7 @@ public:
 	string getEmail();
 	int getScore();
 	void getUserInfo();
+	void getUserInfo(string& _id, string& _pwd, string& _email);
 	void setID(string _id);
 	void setPwd(string _pwd);
 	void setEmail(string _email);

@@ -1,17 +1,17 @@
 #include "UserManager.h"
-
+#include<Windows.h>
 UserManager::UserManager()
 {
 	conn = mysql_init(NULL);
 	mysql_options(conn, MYSQL_SET_CHARSET_NAME, "euckr"); //한글깨짐
 	bool error = mysql_real_connect(conn, "localhost", "root", "java", "mydb", 5306, NULL, 0);
-	if (!error)
+	/*if (!error)
 	{
 		cout << "디비접속에러" << endl;
 	}
 	else {
 		cout << "접속 성공" << endl;
-	}
+	}*/
 }
 
 void UserManager::printDB()
@@ -32,9 +32,9 @@ bool UserManager::login(string _id, string _pwd)
 {
 	if (isUserExist(_id, _pwd))
 	{
-		cout << row[0] << " " << row[1] << " " << row[2] << " " << row[3] << endl;
-
-
+		//cout << row[0] << " " << row[1] << " " << row[2] << " " << row[3] <<endl;
+		
+		
 		char str[3][50];
 		//pwd, email;
 		int score;
@@ -53,9 +53,8 @@ bool UserManager::login(string _id, string _pwd)
 			buffer[lengths[3]] = 0;
 			sscanf(row[3], "%d", &score);
 		}
-
-		user.setAll(str[0], str[1], str[2], score);
-		//이거 주석 풀면 오류나서 해결하는 중 
+		user.setAll(str[0], str[1], str[2], 0);
+		//이거 썅 주석 풀면 오류나서 해결하는 중 
 		cout << "로그인 성공" << endl;
 		return true;
 	}
@@ -64,20 +63,21 @@ bool UserManager::login(string _id, string _pwd)
 		cout << "로그인 실패" << endl;
 		return false;
 	}
-
+		
 }
 
 void UserManager::join(string _id, string _pwd, string _email, int _score)
 {
 	if (!isIDExist(_id, _email))
 	{
-		string query = "insert into user(id, pwd, email, score) values ('";
+		string query = "insert into user values ('";
 		query += _id;
-		query += "', '" + _pwd;
-		query += "', '" + _email;
-		query += "', '" + to_string(_score);
-		query += "');";
-		int query_status = mysql_query(conn,query.c_str());
+		query += "','" + _pwd;
+		query += "','" + _email;
+		query += "','" + to_string(_score);
+		query += "')";
+		//cout << query << endl;
+		int query_status = mysql_query(conn, query.c_str());
 		if (query_status != 0) {
 			cout << "질의 오류" << endl;
 			return;
@@ -89,29 +89,74 @@ void UserManager::join(string _id, string _pwd, string _email, int _score)
 		cout << "아이디 또는 이메일이 이미 존재합니다." << endl;
 	}
 }
+
 void UserManager::find()
 {
-	cout << "아이디 찾기 : 1" << endl;
+
+	gotoxy(15, 8);
+	//=========================오류 수정=========================
+	cout << "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓";
+	gotoxy(15, 9);
+	cout << "┃*****************************┃";
+	gotoxy(15, 10);
+	cout << "┃*                           *┃";
+	gotoxy(15, 11);
+	cout << "┃*                           *┃";
+	gotoxy(15, 12);
+	cout << "┃*                           *┃";
+	gotoxy(15, 13);
+	cout << "┃*****************************┃";
+	gotoxy(15, 14);
+	cout << "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛";
+	gotoxy(24, 7);
+	cout << "< 회원가입 >" << endl;
+	gotoxy(20, 10);
+	cout << "아이디 찾기   : 1";
+	
+	gotoxy(20, 11);
 	cout << "비밀번호 찾기 : 2" << endl;
 	int input;
+	gotoxy(17, 12);
+	cout << " 1 또는 2를 입력하세요 : ";
 	cin >> input;
 	switch (input)
 	{
 	case 1:
 	{
 		system("cls");
+		gotoxy(15, 8);
+		//=========================오류 수정=========================
+		cout << "┏━━━━━━━━━━━━━━━━━━━━━━━━━━┓";
+		gotoxy(15, 9);
+		cout << "┃**************************┃";
+		gotoxy(15, 10);
+		cout << "┃*                        *┃";
+		gotoxy(15, 11);
+		cout << "┃*                        *┃";
+		gotoxy(15, 12);
+		cout << "┃**************************┃";
+		gotoxy(15, 13);
+		cout << "┗━━━━━━━━━━━━━━━━━━━━━━━━━━┛";
+		gotoxy(23, 7);
 		cout << "<아이디 찾기>" << endl;
-		cout << "email을 입력하세요 : ";
+		gotoxy(19, 10);
+		cout << "email을 입력하세요";
 		string email;
+		gotoxy(18, 11);
 		cin >> email;
+		
+		
 		string query = "select * from user where email='" + email + "'";
 		int query_status = mysql_query(conn, query.c_str());
 		if (query_status != 0) {
+			//cout << "질의문 오류!!" << endl;
 			return;
 		}
 		m_res = mysql_store_result(conn);
 		row = mysql_fetch_row(m_res);
 		lengths = mysql_fetch_lengths(m_res);
+
+		gotoxy(18, 15);
 		if (row == NULL)
 		{
 			mysql_free_result(m_res);
@@ -133,26 +178,51 @@ void UserManager::find()
 			return;
 		}
 	}
-	return;
+		return;
 	case 2:
 		system("cls");
+		gotoxy(15, 8);
+		//=========================오류 수정=========================
+		cout << "┏━━━━━━━━━━━━━━━━━━━━━━━━━━┓";
+		gotoxy(15, 9);
+		cout << "┃**************************┃";
+		gotoxy(15, 10);
+		cout << "┃*                        *┃";
+		gotoxy(15, 11);
+		cout << "┃*                        *┃";
+		gotoxy(15, 12);
+		cout << "┃**************************┃";
+		gotoxy(15, 13);
+		cout << "┗━━━━━━━━━━━━━━━━━━━━━━━━━━┛";
+		gotoxy(23, 7);
 		cout << "<비밀번호 찾기>" << endl;
-		cout << "아이디를 입력하세요 : ";
+		gotoxy(19, 10);
+		cout << "아이디를 입력하세요! ";
 		string id;
+		
+		gotoxy(18, 11);
 		cin >> id;
-		cout << "email을 입력하세요 : ";
+		gotoxy(15, 11);
+		cout << "┃*                        *┃";
+		gotoxy(19, 10);
+		cout << "email을 입력하세요!";
 		string email;
+		gotoxy(18, 11);
 		cin >> email;
+
 		string query = "select * from user where id='" + id + "'and email='" + email + "'";
 		int query_status = mysql_query(conn, query.c_str());
 		if (query_status != 0) {
+			cout << "질의문 오류!!" << endl;
 			return;
 		}
 		m_res = mysql_store_result(conn);
 		row = mysql_fetch_row(m_res);
 		lengths = mysql_fetch_lengths(m_res);
 
-		if (row == NULL){
+		gotoxy(18, 15);
+		if (row == NULL)
+		{
 			mysql_free_result(m_res);
 			cout << "존재하지 않는 사용자 정보입니다." << endl;
 			return;
@@ -168,9 +238,11 @@ void UserManager::find()
 			}
 			mysql_free_result(m_res);
 			cout << "사용자의 비밀번호는 " << PWD << "입니다." << endl;
+
 			return;
 		}
 		return;
+	
 	}
 }
 
@@ -182,7 +254,7 @@ void UserManager::rank()
 		cout << "질의문 오류!!" << endl;
 		return;
 	}
-
+	
 	m_res = mysql_store_result(conn);
 	while ((row = mysql_fetch_row(m_res)) != NULL) {
 		lengths = mysql_fetch_lengths(m_res);
@@ -207,17 +279,67 @@ void UserManager::rank()
 	}
 	mysql_free_result(m_res);
 	userList.sort();
+	system("cls");
+	gotoxy(7, 8);
+	//=========================오류 수정=========================
+	cout << "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓";
+	gotoxy(7, 9);
+	cout << "┃****************************************************┃";
+	gotoxy(7, 10);
+	cout << "┃*                                                  *┃";
+	gotoxy(7, 11);
+	cout << "┃*                                                  *┃";
+	gotoxy(7, 12);
+	cout << "┃*                                                  *┃";
+	gotoxy(7, 13);
+	cout << "┃*                                                  *┃";
+	gotoxy(7, 14);
+	cout << "┃*                                                  *┃";
+	gotoxy(7, 15);
+	cout << "┃****************************************************┃";
+	gotoxy(7, 16);
+	cout << "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛";
+	gotoxy(27, 7);
+	cout << "< Top 5 >" << endl;
+
+	int i = 0;
 	for (User u : userList)
 	{
-		u.getUserInfo();
+		gotoxy(10, 10 + i);
+		cout.setf(ios::left);
+		cout << i+1 << "등 | 아이디 : " << setw(10)<<u.getId() << "\t 점수 : " << u.getScore();
+		if (i == 4)	break;
+		i++;
 	}
+	gotoxy(10, 18);
 }
+
+void UserManager::setDBScore(int _Tscore)
+{
+	string email, id, pwd;
+	user.getUserInfo(id, pwd, email);
+	string query = "update user set score='" + to_string(_Tscore) + "' where id='" + id+"' ";
+	
+	int query_status = mysql_query(conn, query.c_str());
+	/*if (query_status != 0) {
+		cout << "질의문 오류!!" << endl;
+		return;
+	}
+	else
+	{
+		cout << "질의문 성공!!" << endl;
+	}*/
+}
+
 
 bool UserManager::isIDExist(string _id, string _email)
 {
 	string query = "select * from user where id='" + _id + "'or email='" + _email + "'";
+	//
+	//cout << query << endl;
 	int query_status = mysql_query(conn, query.c_str());
 	if (query_status != 0) {
+		//cout << "질의문 오류!!" << endl;
 		return false;
 	}
 	m_res = mysql_store_result(conn);
@@ -236,11 +358,13 @@ bool UserManager::isIDExist(string _id, string _email)
 
 bool UserManager::isUserExist(string _id, string _pwd)
 {
-	string query = "select * from user where id='" + _id + "'and pwd='" + _pwd + "'";
+	string query = "select * from user where id='" + _id + "'and pwd='"+_pwd+"'";
+	//cout << query << endl;
 	int query_status = mysql_query(conn, query.c_str());
 	if (query_status != 0) {
+		//cout << "질의문 오류!!" << endl;
 		return false;
-	}
+	}	
 	m_res = mysql_store_result(conn);
 	row = mysql_fetch_row(m_res);
 	lengths = mysql_fetch_lengths(m_res);
@@ -254,6 +378,8 @@ bool UserManager::isUserExist(string _id, string _pwd)
 		mysql_free_result(m_res);
 		return true;
 	}
+		
+	
 }
 
 void UserManager::membership()
@@ -315,10 +441,30 @@ void UserManager::membership()
 				//cout << "1번 메뉴" << endl;
 				{
 					string id, pwd;
-					cout << "<로그인>" << endl;
-					cout << "ID를 입력하세요 : ";
+					gotoxy(15, 8);
+					//=========================오류 수정=========================
+					cout << "┏━━━━━━━━━━━━━━━━━━━━━━━━━━┓";
+					gotoxy(15, 9);
+					cout << "┃**************************┃";
+					gotoxy(15, 10);
+					cout << "┃*                        *┃";
+					gotoxy(15, 11);
+					cout << "┃*                        *┃";
+					gotoxy(15, 12);
+					cout << "┃**************************┃";
+					gotoxy(15, 13);
+					cout << "┗━━━━━━━━━━━━━━━━━━━━━━━━━━┛";
+					gotoxy(25, 7);
+					cout << "< 로그인 >" << endl;
+					gotoxy(22, 10);
+					cout << "ID를 입력하세요 ";
+					gotoxy(20, 11);
 					cin >> id;
-					cout << "PassWord를 입력하세요 : ";
+					gotoxy(20, 11);
+					cout << "             ";
+					gotoxy(20, 10);
+					cout << "PassWord를 입력하세요";
+					gotoxy(20, 11);
 					cin >> pwd;
 					system("cls");
 					if (login(id, pwd))
@@ -339,26 +485,55 @@ void UserManager::membership()
 				system("cls");
 				{
 					string id, pwd, email;
-					cout << "<회원 가입>" << endl;
-					cout << "ID를 입력하세요 : ";
+					gotoxy(15, 8);
+					//=========================오류 수정=========================
+					cout << "┏━━━━━━━━━━━━━━━━━━━━━━━━━━┓";
+					gotoxy(15, 9);
+					cout << "┃**************************┃";
+					gotoxy(15, 10);
+					cout << "┃*                        *┃";
+					gotoxy(15, 11);
+					cout << "┃*                        *┃";
+					gotoxy(15, 12);
+					cout << "┃**************************┃";
+					gotoxy(15, 13);
+					cout << "┗━━━━━━━━━━━━━━━━━━━━━━━━━━┛";
+					gotoxy(24, 7);
+					cout << "< 회원가입 >" << endl;
+
+					gotoxy(22, 10);
+					cout << "ID를 입력하세요 ";
+					gotoxy(20, 11);
 					cin >> id;
-					cout << "PassWord를 입력하세요 : ";
+					gotoxy(20, 11);
+					cout << "             ";
+					gotoxy(20, 10);
+					cout << "PassWord를 입력하세요";
+					gotoxy(20, 11);
 					cin >> pwd;
-					cout << "이메일을 입력하세요 : ";
+					gotoxy(20, 11);
+					cout << "             ";
+					gotoxy(20, 10);
+					cout << "이메일을 입력하세요  ";
+					gotoxy(20, 11);
 					cin >> email;
 					system("cls");
 					join(id, pwd, email, 0);
 					Sleep(500);
 					system("cls");
 				}
-
+				
+				//cout << "2번 메뉴" << endl;
 				break;
 			}
 			case 10: {
 				system("cls");
+
 				find();
+				gotoxy(18, 16);
 				system("pause");
 				system("cls");
+				//cout << "3번 메뉴" << endl;
 
 				break;
 			}

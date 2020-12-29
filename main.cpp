@@ -5,7 +5,8 @@
 #include"GameManager.h"
 #include"Server.h"
 #include"UserManager.h"
-
+#include <MMSystem.h>
+#pragma comment(lib,"Winmm.lib")
 using namespace std;
 int gotoxy(int x, int y)
 {
@@ -22,14 +23,27 @@ void SetColor(int color)
 {
 	static HANDLE std_output_handle = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleTextAttribute(std_output_handle, color);
+
 }
 
 int main()
 {
+	
+	//UserManager um;
+	//um.user.setAll("123", "123", "123", 0);
+	//um.user.getUserInfo();
+	//um.setDBScore(500);
+	/*printf("아무 키나 입력하시면 소리 재생이 멈춥니다.\n");
+	PlaySound(TEXT("music.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+	while (!_kbhit());
+	PlaySound(NULL, 0, 0);*/
+
+
+
+	Server test;
+	
 	GameManager game;
-	game.show_logo();
 	game.gameStart();
-	serverClose();
 	
 	return 0;
 }
